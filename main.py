@@ -113,13 +113,13 @@ def change_arm_len(extend):
         extend_motor_2.high()
 def move_to_tile(tile, quick = False, backwards = True, stop = False, slow = False):
     
-    # Convert sensor (-180 to 180) to 0-360
+
     raw = rotation_sensor.angle
     degree = raw % 360
 
     target = places[tile][1] 
 
-    # Signed diff: positive = CW, negative = CCW
+
     diff = (target - degree) % 360
     if diff > 180:
         diff -= 360 
@@ -147,7 +147,6 @@ def move_to_tile(tile, quick = False, backwards = True, stop = False, slow = Fal
 
     target = places[tile][1] 
 
-    # Signed diff: positive = CW, negative = CCW
     diff = (target - degree) % 360
     if diff > 180:
         diff -= 360 
@@ -205,11 +204,11 @@ def zero(DIR_PIN, PUL_PIN, use_ir=False):
     return degree
 def step_motor(steps, direction, delay, DIR_PIN, PUL_PIN):
 
-    DIR_PIN.value(not direction)  # Set direction
+    DIR_PIN.value(not direction)
     for _ in range(steps):
-        PUL_PIN.value(1)  # Pulse high
+        PUL_PIN.value(1)
         sleep(delay)
-        PUL_PIN.value(0)  # Pulse low
+        PUL_PIN.value(0)
         sleep(delay)
 def draw_degree(fb, x, y):
     fb.pixel(x, y, 1)
@@ -928,19 +927,19 @@ colorsets = [
 # function used for finding if a title_deed is in a colorset
 def check_color_set(turn, ai=False):
     player = player_list[turn]
-    player_deeds_set = set(player.title_deeds)  # fast lookups
+    player_deeds_set = set(player.title_deeds)
     found_colorset = False
     announced = False
 
     for colorset in colorsets:
-        # Check if the player owns every deed in this colorset
+        
         if set(colorset).issubset(player_deeds_set):
             if not announced:
                 print("You have a color set")
                 announced = True
             found_colorset = True
 
-            # Mark each matching title_deed object
+            
             for deed in title_deed:
                 if deed.place in colorset:
                     deed.colorset = True
@@ -1013,8 +1012,6 @@ def check_color_set(turn, ai=False):
 
 def broke(turn, reciver, player_list, negative):
 
-    # ── helpers ──────────────────────────────────────────────────────────────
-
     def find_player_index(token):
         """Return the index in player_list whose token matches `token`."""
         for idx, p in enumerate(player_list):
@@ -1050,9 +1047,9 @@ def broke(turn, reciver, player_list, negative):
         if category == "title_deed":
             return title_deed[idx].calc_sell()
         elif category == "train":
-            return 100   # standard Monopoly mortgage value for railroads
+            return 100
         elif category == "utility":
-            return 75    # standard Monopoly mortgage value for utilities
+            return 75
         return 0
 
     def selling_td(sell_t, sell, p_list, category, td_idx, actor_turn, actor_receiver):
@@ -1072,7 +1069,7 @@ def broke(turn, reciver, player_list, negative):
             p_list[actor_turn].balance += calc_sell_value(category, td_idx)
             update_info(actor_turn)
 
-        else:  # "sell_and_give"
+        else:
             recv_idx = find_player_index(actor_receiver)
             p_list[recv_idx].title_deeds.append(sell_t)
             p_list[actor_turn].balance += calc_sell_value(category, td_idx)
@@ -1081,7 +1078,6 @@ def broke(turn, reciver, player_list, negative):
         time.sleep(2)
         return p_list
 
-    # ── pick a title deed to give (UI helper) ────────────────────────────────
 
     def pick_td_from_player(picker_turn, prompt="What title deed do you want to give"):
         """
@@ -1119,11 +1115,10 @@ def broke(turn, reciver, player_list, negative):
                 oled_fill(ctrl);     oled_show(ctrl)
                 return chosen
 
-    # ── TRADE branch ─────────────────────────────────────────────────────────
+
 
     if reciver != 0:
 
-        # --- current player gives a deed ---
         while True:
             td_to_give = pick_td_from_player(turn)
             if td_to_give is None:
@@ -1142,12 +1137,12 @@ def broke(turn, reciver, player_list, negative):
                 time.sleep(2)
                 continue
 
-            break   # valid selection
+            break
 
         player_list = selling_td(td_to_give, "trade", player_list,
                                  category, idx, turn, reciver)
 
-        # --- receiver gives a deed back ---
+       
         recv_turn = find_player_index(reciver)
 
         while True:
@@ -1158,7 +1153,7 @@ def broke(turn, reciver, player_list, negative):
                 time.sleep(2)
                 break
 
-            # FIX: was only searching title_deed; now uses find_td_index
+            
             recv_cat, recv_idx = find_td_index(td_to_receive)
             if recv_cat is None:
                 print("Please select a valid title deed")
@@ -1172,17 +1167,14 @@ def broke(turn, reciver, player_list, negative):
 
             break
 
-        # FIX: pass explicit actor_turn=recv_turn and actor_receiver=player's token
+        
         player_list = selling_td(td_to_receive, "trade", player_list,
                                  recv_cat, recv_idx,
                                  actor_turn=recv_turn,
                                  actor_receiver=player_list[turn].token)
 
-    # ── BANKRUPTCY branch ────────────────────────────────────────────────────
 
     elif player_list[turn].balance < 0 and not negative:
-        # FIX: `negative` is a plain bool check; was `negative == False`
-
         while True:
             if not player_list[turn].title_deeds:
                 # ── GAME OVER ──────────────────────────────────────────────
@@ -1194,8 +1186,7 @@ def broke(turn, reciver, player_list, negative):
                 oled_big_fill(int(player_list[turn].controller), all=True)
                 oled_big_show(int(player_list[turn].controller), all=True)
 
-                # FIX: liquidate all players' assets (not just the bankrupt player),
-                # using the correct per-player turn index and proper category lookup.
+                
                 for i in range(len(player_list)):
                     for deed in list(player_list[i].title_deeds):
                         cat, td_idx = find_td_index(deed)
@@ -1206,7 +1197,7 @@ def broke(turn, reciver, player_list, negative):
                                                      actor_receiver=0)
                             update_info(i)
 
-                # FIX: sort by balance descending to assign places correctly
+                
                 ranked = sorted(range(len(player_list)),
                                 key=lambda i: player_list[i].balance,
                                 reverse=True)
@@ -1225,13 +1216,12 @@ def broke(turn, reciver, player_list, negative):
 
                 raise ValueError("Game Over")
 
-            # ── still has deeds: ask what to sell / mortgage ───────────────
+            
             print(player_list[turn].title_deeds)
 
             if player_list[turn].ai:
                 sell_t = AI(player_list, "sell_t", 0, 0, turn)
-                # FIX: was `mos = 1` which is truthy but not "mortgage";
-                # AI always mortgages here, so set it explicitly.
+                
                 mos = "mortgage"
             else:
                 ctrl = int(player_list[turn].controller)
@@ -1270,7 +1260,7 @@ def broke(turn, reciver, player_list, negative):
                 oled_big_show(ctrl)
                 oled_text(ctrl, "<-mortgage   $->", 0, 46, 1)
                 oled_show(ctrl)
-                mos = None   # FIX: explicit None so we never fall through with garbage
+                mos = None
                 while mos is None:
                     if pcf_pin(ctrl, green) == 0:
                         mos = "sell"
@@ -1282,7 +1272,7 @@ def broke(turn, reciver, player_list, negative):
                 oled_big_fill(ctrl); oled_big_show(ctrl)
                 oled_fill(ctrl);     oled_show(ctrl)
 
-            # FIX: look up category + index once, used by both branches below
+            
             category, td_idx = find_td_index(sell_t)
 
             if mos == "mortgage":
@@ -1329,9 +1319,7 @@ def broke(turn, reciver, player_list, negative):
                 oled_big_fill(int(player_list[turn].controller))
                 oled_big_show(int(player_list[turn].controller))
 
-            else:  # sell
-                # FIX: was breaking out of the loop without actually calling
-                # selling_td; now calls it properly with correct category+index.
+            else:
                 if category is not None:
                     player_list = selling_td(sell_t, "sell", player_list,
                                              category, td_idx,
@@ -1687,7 +1675,7 @@ def broke(turn, reciver, player_list, negative):
                 raise ValueError("Game Over")
     return player_list"""
 
-def auction(player_list, name, turn):  # FIX: added turn parameter
+def auction(player_list, name, turn):
     player_move = 0
     auction_price = 0
     must_win = 0
@@ -1754,7 +1742,7 @@ def auction(player_list, name, turn):  # FIX: added turn parameter
                             oled_big_rect(int(player_list[player_move].token), 0, 45, 128, 60, 0, True)
                             oled_big_text(int(player_list[player_move].token), f"You are bidding {auction_bid}", 0, 45, 1)
                             oled_big_show(int(player_list[player_move].token))
-                            # FIX: use player_move's controller, not turn's
+
                             auction_bid -= encoder(int(player_list[player_move].controller), "delta") * 10
                             if encoder(int(player_list[player_move].controller), "switch") == 0:
                                 time.sleep(.3)
@@ -1798,20 +1786,20 @@ def auction(player_list, name, turn):  # FIX: added turn parameter
 
             if players_auction == 1:
                 print(f"{player_list[winner].token} has won!")
-                oled_big_text(int(player_list[winner].token), f"Player {player_list[winner].token} has won!", 0, 0, 1, all=True)  # FIX: all=True not all==True
+                oled_big_text(int(player_list[winner].token), f"Player {player_list[winner].token} has won!", 0, 0, 1, all=True)
                 oled_big_show(int(player_list[winner].token), all=True)
                 time.sleep(2)
                 oled_big_fill(int(player_list[winner].token), all=True)
                 oled_big_show(int(player_list[winner].token), all=True)
                 player_list[winner].title_deeds.append(name)
                 player_list[winner].balance -= auction_price
-                update_info(winner)  # FIX: was update_info(turn)
+                update_info(winner)
                 for i in range(len(player_list)):
                     player_list[i].auction = True
                 break
 
             elif players_auction == 0:
-                oled_big_text(int(player_list[0].controller), "Some one must win", 0, 0, 1, all=True)  # FIX: all=True, use index 0 safely
+                oled_big_text(int(player_list[0].controller), "Some one must win", 0, 0, 1, all=True)
                 oled_big_show(int(player_list[0].controller), all=True)
                 time.sleep(2)
                 oled_big_fill(int(player_list[0].controller), all=True)

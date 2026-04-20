@@ -46,11 +46,11 @@ class AdafruitEncoder:
         if val & 0x80000000:
             val -= 0x100000000
 
-        # Filter corrupt reads (partial byte transfers), but NOT -1
+    
         if val in (-65536, -16777216):
             return 0
 
-        # Optional: clamp to a sane range to catch other garbage values
+        
         if abs(val) > 100:
             return 0
 
