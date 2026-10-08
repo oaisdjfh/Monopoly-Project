@@ -17,17 +17,49 @@ blue = 1
 red = 2
 green = 3
 ##################################################
-
+print(id_pin1.value(), id_pin2.value(), id_pin3.value(), id_pin4.value())
 if id_pin1.value() == 0:
     controllers_connected.append(1)
-    i2c_control1 = SoftI2C(scl=Pin(15), sda=Pin(14), freq = 200000)
+    i2c_control1 = I2C(1, scl=Pin(15), sda=Pin(14), freq = 200000)
+    sleep(0.1)
+    """
     oled_big1 = SH1107(i2c_control1, rotation = 270)
     pcf1 = PCF8574(i2c_control1, 0x20)
     oled1 = SSD1306_I2C(128, 64, i2c_control1, addr=0x3D)
     
     #encoder = KY040_PCF(pcf, pin_clk_gpio=13, pin_dt_pcf=dt, pin_sw=sw)
     encoder1 = AdafruitEncoder(i2c_control1)
+    """
 
+
+    mux1 = PCA9548A(i2c_control1)
+    
+
+    
+
+    mux1.select(2)
+    print(i2c_control1.scan())
+    oled1 = SSD1306_I2C(128, 64, i2c_control1, addr=0x3D)
+    oled1.fill(0)
+    oled1.text("asdflkj", 0, 0, 1)
+    oled1.show()
+
+
+    mux1.select(0)
+    print(i2c_control1.scan())
+    pcf1 = PCF8574(i2c_control1, 0x20)
+
+    
+    mux1.select(1)
+    print(i2c_control1.scan())
+    oled_big1 = SH1107(i2c_control1, rotation=270)
+    oled_big1.fill(0)
+    oled_big1.text("asdflkj", 0, 0, 1)
+    oled_big1.show()
+
+
+    #encoder = KY040_PCF(pcf, pin_clk_gpio=13, pin_dt_pcf=dt, pin_sw=sw)
+    encoder1 = AdafruitEncoder(i2c_control1)
 ##################################################
 if id_pin4.value() == 0:
     controllers_connected.append(4)
@@ -237,6 +269,8 @@ turn_thing = 0
 
 def oled_big_text(controller_num, text, x = 0, y = 0, a =1, all = False):
     #controller_num = player_list[int(controller_num)-1].controller
+    if controller_num == 0:
+        oled_big1.text_wrapped(text, x, y, a)
     if controller_num == 1 or all:
         try:    
             if not player_list[0].ai:
@@ -263,6 +297,8 @@ def oled_big_text(controller_num, text, x = 0, y = 0, a =1, all = False):
         except IndexError:
             None
 def oled_big_rect(controller_num, text, x = 0, y = 0, w = 10, h = 10, a = 1, all = False):
+    if controller_num == 0:
+        oled_big1.rect(text, x, y, w, h, a)
     if controller_num == 1 or all:
         try:    
             if not player_list[0].ai:
@@ -289,6 +325,8 @@ def oled_big_rect(controller_num, text, x = 0, y = 0, w = 10, h = 10, a = 1, all
         except IndexError:
             None
 def oled_big_show(controller_num, all = False):
+    if controller_num == 0:
+        oled_big1.show()
     if controller_num == 1 or all:
         try:    
             if not player_list[0].ai:
@@ -315,6 +353,8 @@ def oled_big_show(controller_num, all = False):
         except IndexError:
             None
 def oled_big_fill(controller_num, a = 0, all = False):
+    if controller_num == 0:
+        oled_big1.fill(a)
     if controller_num == 1 or all:
         try:    
             if not player_list[0].ai:
@@ -341,6 +381,8 @@ def oled_big_fill(controller_num, a = 0, all = False):
         except IndexError:
             None
 def oled_text(controller_num, text, x = 0, y = 0, a = 1, all = False):
+    if controller_num == 0:
+        oled1.text(text, x, y, a)
     if controller_num == 1 or all:
         try:    
             if not player_list[0].ai:
@@ -367,6 +409,8 @@ def oled_text(controller_num, text, x = 0, y = 0, a = 1, all = False):
         except IndexError:
             None
 def oled_show(controller_num, all = False):
+    if controller_num == 0:
+        oled1.show()
     if controller_num == 1 or all:
         try:    
             if not player_list[0].ai:
@@ -395,6 +439,8 @@ def oled_show(controller_num, all = False):
 def oled_fill(controller_num, a = 0, all = False, true_clear = False):
     
     if true_clear:
+        if controller_num == 0:
+            oled1.fill(a)
         if controller_num == 1 or all:
             try:    
                 if not player_list[0].ai:
@@ -421,6 +467,8 @@ def oled_fill(controller_num, a = 0, all = False, true_clear = False):
             except IndexError:
                 None
     else:
+        if controller_num == 0:
+            oled1.rect(0,15, 128, 60, 0, True)
         if controller_num == 1 or all:
             try:    
                 if not player_list[0].ai:
@@ -447,6 +495,8 @@ def oled_fill(controller_num, a = 0, all = False, true_clear = False):
             except IndexError:
                 None
 def oled_rect(controller_num, x, y, w, h, a = 1, fill = True, all = False):
+    if controller_num == 0:
+        oled1.rect(x, y, w, h, a, fill)
     if controller_num == 1 or all:
         try:    
             if not player_list[0].ai:
@@ -473,7 +523,8 @@ def oled_rect(controller_num, x, y, w, h, a = 1, fill = True, all = False):
         except IndexError:
             None
 def pcf_pin(pcf_num, color):
-
+    if pcf_num == 0:
+        return pcf1.pin(color)
     if pcf_num == 1:
         try:    
             if not player_list[0].ai:
@@ -502,6 +553,8 @@ def pcf_pin(pcf_num, color):
 
 def encoder(enc_num, dos):
     if dos == "delta":
+        if enc_num == 0:
+            return encoder1.get_delta()
         if enc_num == 1:
             try:    
                 if not player_list[0].ai:
@@ -528,6 +581,8 @@ def encoder(enc_num, dos):
             except IndexError:
                 None   
     if dos == "switch":
+        if enc_num == 0:
+            return encoder1.get_switch()
         if enc_num == 1:
             try:    
                 if not player_list[0].ai:
@@ -733,11 +788,11 @@ save_files = eval(save_file_of_save_file_of_save_files.read())
 
 
 player_num = 2
-oled_big1.fill(0)
-oled_big1.show()
-oled1.fill(0)
-oled1.text("Monopoly Set Up", 0, 0, 1)
-oled1.text("Enter # players", 0, 16, 1)
+oled_big_fill(0)
+oled_big_show(0)
+oled_fill(0)
+oled_text(0, "Monopoly Set Up", 0, 0, 1)
+oled_text(0,"Enter # players", 0, 16, 1)
 while True:
     oled1.rect(0, 26, 128, 20, 0, True)
     oled1.text(f"# of players: {player_num}", 0, 26, 1)

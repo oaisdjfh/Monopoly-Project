@@ -9,7 +9,7 @@ from i2c_encoder import AdafruitEncoder
 i2c_control = SoftI2C(scl=Pin(15), sda=Pin(14))
 
 pcf = PCF8574(i2c_control, 0x20)
-oled = SSD1306_I2C(128, 64, i2c_control, addr=0x3D)
+#oled = SSD1306_I2C(128, 64, i2c_control, addr=0x3D)
 yellow = 4
 blue = 1
 red = 2
@@ -19,7 +19,7 @@ clk = 5
 dt = 6
 magnet_value = 0
 #encoder = KY040_PCF(pcf, pin_clk_gpio=13, pin_dt_pcf=dt, pin_sw=sw)
-encoder = AdafruitEncoder(i2c_control)
+#encoder = AdafruitEncoder(i2c_control)
 extend_pos = True
 limit_switch = Pin(3, Pin.IN, Pin.PULL_UP)
 extend_motor_1 = Pin(7, Pin.OUT)
@@ -80,9 +80,9 @@ def step_motor(steps, direction, delay, DIR_PIN, PUL_PIN):
     """
     DIR_PIN.value(direction)  # Set direction
     for _ in range(steps):
-        PUL_PIN.value(1)  # Pulse high
+        PUL_PIN.high()  # Pulse high
         sleep(delay)
-        PUL_PIN.value(0)  # Pulse low
+        PUL_PIN.low()  # Pulse low
         sleep(delay)
 def draw_degree(fb, x, y):
     fb.pixel(x, y, 1)
@@ -101,6 +101,21 @@ places = [
           ]
 while True:
     long = int(input("magnet, control arm, extension change, extension control, long, steps, reset degree, print info, zero, place, manual (10/9/8/7/6/5/4/3/2/1/0): "))
+    if long == 11:
+        move_degree = float(720)
+        direction_in = ("CW")
+        speed = float(1)
+        
+        direction = 1
+        if direction_in == "CW":
+            direction = 0
+        degree += move_degree - 2*move_degree*direction
+        move_degree = int((microstep*move_degree)/360)
+        speed = 1.005-speed
+        step_motor(move_degree, direction, speed, base_dir, base_pul)
+        print()
+        sleep(0.5)
+            
     if long == 10:
         magnet.value(not magnet_value)
         magnet_value = not magnet_value

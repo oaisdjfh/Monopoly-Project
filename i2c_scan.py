@@ -3,7 +3,7 @@ import time
 
 
 
-i2c = I2C(0, scl=Pin(17), sda=Pin(16), freq=400000)
+i2c = I2C(1, scl=Pin(15), sda=Pin(14), freq=400000)
 
 
 def scan_i2c():
